@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Modelo de Negocio - Instant Payments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center my-4">Simulador de Modelo de Negocio</h1>
+        
+        <!-- Botón de reset -->
+        <div class="text-center mb-3">
+            <button onclick="resetearABase()" class="btn btn-warning">Resetear a Escenario Base</button>
+        </div>
+
+        <!-- Navegación entre módulos -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="productos-tab" data-bs-toggle="tab" data-bs-target="#productos" type="button">Productos</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pyl-tab" data-bs-toggle="tab" data-bs-target="#pyl" type="button">P&L</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="entorno-tab" data-bs-toggle="tab" data-bs-target="#entorno" type="button">Análisis Entorno</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="competitivo-tab" data-bs-toggle="tab" data-bs-target="#competitivo" type="button">Análisis Competitivo</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="mercado-tab" data-bs-toggle="tab" data-bs-target="#mercado" type="button">Análisis de Mercado</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="estrategias-tab" data-bs-toggle="tab" data-bs-target="#estrategias" type="button">Estrategias</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button">Dashboard</button>
+            </li>
+        </ul>
+
+        <!-- Contenido de los módulos -->
+        <div class="tab-content p-3 border border-top-0 rounded-bottom" id="myTabContent">
+            <!-- Módulo Productos -->
+            <div class="tab-pane fade show active" id="productos" role="tabpanel">
+                <h3>Productos/Servicios</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="productoForm">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombreProducto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Categoría</label>
+                                <input type="text" class="form-control" id="categoriaProducto">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Transacciones anuales</label>
+                                <input type="number" class="form-control" id="transaccionesProducto">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Valor promedio por transacción ($)</label>
+                                <input type="number" step="0.01" class="form-control" id="valorProducto">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Agregar Producto</button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Lista de Productos</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Transacciones</th>
+                                        <th>Valor</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listaProductos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo P&L -->
+            <div class="tab-pane fade" id="pyl" role="tabpanel">
+                <h3>Estado de Resultados (P&L)</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="pylForm">
+                            <div class="mb-3">
+                                <label class="form-label">% Gastos operativos</label>
+                                <input type="number" class="form-control" id="porcentajeGastos" value="20">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">% Impuestos</label>
+                                <input type="number" class="form-control" id="porcentajeImpuestos" value="30">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Calcular P&L</button>
+                        </form>
+                        <div class="mt-4">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultadosPyl"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Desglose P&L</h5>
+                                <div class="chart-container">
+                                    <canvas id="pylChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo Análisis Entorno (PESTEL) -->
+            <div class="tab-pane fade" id="entorno" role="tabpanel">
+                <h3>Análisis del Entorno (PESTEL)</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="pestelForm">
+                            <div class="mb-3">
+                                <label class="form-label">Factor</label>
+                                <select class="form-select" id="factorPestel">
+                                    <option value="Político">Político</option>
+                                    <option value="Económico">Económico</option>
+                                    <option value="Social">Social</option>
+                                    <option value="Tecnológico">Tecnológico</option>
+                                    <option value="Ecológico">Ecológico</option>
+                                    <option value="Legal">Legal</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Variable</label>
+                                <input type="text" class="form-control" id="variablePestel" placeholder="Ej: Regulación cripto">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Impacto</label>
+                                <select class="form-select" id="impactoPestel">
+                                    <option value="1">Muy bajo</option>
+                                    <option value="2">Bajo</option>
+                                    <option value="3">Medio</option>
+                                    <option value="4">Alto</option>
+                                    <option value="5">Muy alto</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Agregar Variable</button>
+                        </form>
+                        <div class="mt-3">
+                            <h5>Variables por factor</h5>
+                            <div id="variablesPestel" class="accordion"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="pestelChart"></canvas>
+                        </div>
+                        <div class="mt-4">
+                            <h5>Estrategias recomendadas</h5>
+                            <ul id="estrategiasPestel" class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo Análisis Competitivo (Porter) -->
+            <div class="tab-pane fade" id="competitivo" role="tabpanel">
+                <h3>Análisis Competitivo (5 Fuerzas de Porter)</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form id="porterForm">
+                            <div class="mb-3">
+                                <label class="form-label">Fuerza competitiva</label>
+                                <select class="form-select" id="fuerzaPorter">
+                                    <option value="Amenaza de nuevos entrantes">Amenaza de nuevos entrantes</option>
+                                    <option value="Poder de negociación de clientes">Poder de negociación de clientes</option>
+                                    <option value="Poder de negociación de proveedores">Poder de negociación de proveedores</option>
+                                    <option value="Amenaza de productos sustitutos">Amenaza de productos sustitutos</option>
+                                    <option value="Rivalidad entre competidores">Rivalidad entre competidores</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Variable</label>
+                                <input type="text" class="form-control" id="variablePorter" placeholder="Ej: Barreras de entrada">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Impacto</label>
+                                <select class="form-select" id="impactoPorter">
+                                    <option value="1">Muy bajo</option>
+                                    <option value="2">Bajo</option>
+                                    <option value="3">Medio</option>
+                                    <option value="4">Alto</option>
+                                    <option value="5">Muy alto</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Agregar Variable</button>
+                        </form>
+                        <div class="mt-3">
+                            <h5>Variables por fuerza</h5>
+                            <div id="variablesPorter" class="accordion"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="chart-container">
+                            <canvas id="porterChart"></canvas>
+                        </div>
+                        <div class="mt-4">
+                            <h5>Estrategias recomendadas</h5>
+                            <ul id="estrategiasPorter" class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo Análisis de Mercado (BCG + Ansoff) -->
+            <div class="tab-pane fade" id="mercado" role="tabpanel">
+                <h3>Análisis de Mercado</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Matriz BCG</h4>
+                        <div class="bcg-container">
+                            <div class="bcg-grid">
+                                <div class="bcg-quadrant" id="estrella">
+                                    <h5>Estrella</h5>
+                                    <ul id="productosEstrella" class="list-group"></ul>
+                                </div>
+                                <div class="bcg-quadrant" id="interrogante">
+                                    <h5>Interrogante</h5>
+                                    <ul id="productosInterrogante" class="list-group"></ul>
+                                </div>
+                                <div class="bcg-quadrant" id="vaca">
+                                    <h5>Vaca Lechera</h5>
+                                    <ul id="productosVaca" class="list-group"></ul>
+                                </div>
+                                <div class="bcg-quadrant" id="perro">
+                                    <h5>Perro</h5>
+                                    <ul id="productosPerro" class="list-group"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Estrategias de Crecimiento (Ansoff)</h4>
+                        <div class="ansoff-container">
+                            <div class="ansoff-grid">
+                                <div class="ansoff-cell" id="penetracion">
+                                    <h5>Penetración de Mercado</h5>
+                                    <ul id="estrategiasPenetracion" class="list-group"></ul>
+                                </div>
+                                <div class="ansoff-cell" id="desarrollo">
+                                    <h5>Desarrollo de Producto</h5>
+                                    <ul id="estrategiasDesarrollo" class="list-group"></ul>
+                                </div>
+                                <div class="ansoff-cell" id="expansion">
+                                    <h5>Expansión de Mercado</h5>
+                                    <ul id="estrategiasExpansion" class="list-group"></ul>
+                                </div>
+                                <div class="ansoff-cell" id="diversificacion">
+                                    <h5>Diversificación</h5>
+                                    <ul id="estrategiasDiversificacion" class="list-group"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <form id="bcgForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Producto</label>
+                                        <select class="form-select" id="productoBcg"></select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Crecimiento (%)</label>
+                                        <input type="number" min="0" max="100" class="form-control" id="crecimientoBcg">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label class="form-label">Penetración (%)</label>
+                                        <input type="number" min="0" max="100" class="form-control" id="penetracionBcg">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Actualizar Posicionamiento</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo Estrategias -->
+            <div class="tab-pane fade" id="estrategias" role="tabpanel">
+                <h3>Simulador de Estrategias</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Estrategias Recomendadas</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul id="listaEstrategias" class="list-group"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Simular Estrategia</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="estrategiaForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Estrategia</label>
+                                        <select class="form-select" id="estrategiaSeleccionada">
+                                            <option value="">Selecciona una estrategia</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Inversión ($)</label>
+                                        <input type="number" class="form-control" id="inversionEstrategia" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Duración (meses)</label>
+                                        <input type="number" class="form-control" id="duracionEstrategia" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Crecimiento esperado (%)</label>
+                                        <input type="number" class="form-control" id="crecimientoEstrategia" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Simular Impacto</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Estrategias Aplicadas</h5>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Estrategia</th>
+                                            <th>Inversión</th>
+                                            <th>Duración</th>
+                                            <th>Impacto EBITDA</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="estrategiasAplicadas"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Módulo Dashboard -->
+            <div class="tab-pane fade" id="dashboard" role="tabpanel">
+                <h3>Dashboard de KPIs</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">EBITDA</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 id="kpi-ebitda" class="kpi">$0</h3>
+                                    <span id="sem-ebitda" class="badge">Sin datos</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="progress-ebitda" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Presupuesto: <span id="presupuesto-ebitda">$0</span></small>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Margen Bruto</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 id="kpi-margen" class="kpi">0%</h3>
+                                    <span id="sem-margen" class="badge">Sin datos</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="progress-margen" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Objetivo: <span id="presupuesto-margen">0%</span></small>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Costo por Transacción</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 id="kpi-costo" class="kpi">$0.00</h3>
+                                    <span id="sem-costo" class="badge">Sin datos</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="progress-costo" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Objetivo: <span id="presupuesto-costo">$0.00</span></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Eficiencia Operativa</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 id="kpi-eficiencia" class="kpi">0%</h3>
+                                    <span id="sem-eficiencia" class="badge">Sin datos</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="progress-eficiencia" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Objetivo: <span id="presupuesto-eficiencia">0%</span></small>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">NPS (Net Promoter Score)</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 id="kpi-nps" class="kpi">0</h3>
+                                    <span id="sem-nps" class="badge">Sin datos</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="progress-nps" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Objetivo: <span id="presupuesto-nps">0</span></small>
+                            </div>
+                        </div>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Churn Rate</h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h3 id="kpi-churn" class="kpi">0%</h3>
+                                    <span id="sem-churn" class="badge">Sin datos</span>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div id="progress-churn" class="progress-bar" role="progressbar"></div>
+                                </div>
+                                <small class="text-muted">Objetivo: <span id="presupuesto-churn">0%</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Evolución de Ingresos</h5>
+                                <div class="chart-container">
+                                    <canvas id="ingresosChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Composición de Productos</h5>
+                                <div class="chart-container">
+                                    <canvas id="productosChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
